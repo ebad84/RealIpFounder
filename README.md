@@ -21,10 +21,11 @@ pip install -r requirements.txt
 pyhton main.py
 ```
 
-```note:
-*you can use ngrok for that with : *
+```
+note:
+***you can use ngrok for that with : ***
 ngrok http 1234
-*then send the link to target and have fun :)*
+***then send the link to target and have fun :)***
 ```
 
 ## Developer 
